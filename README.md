@@ -33,13 +33,17 @@ git clone https://github.com/Unnati-Gupta24/Lost-And-Found.git
 2. Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
-3. Start the development server:
+3. Build and run:
 
 ```bash
-pnpm dev
+npm run build
+```
+
+```bash
+npm start
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
