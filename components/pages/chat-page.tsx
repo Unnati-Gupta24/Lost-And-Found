@@ -242,7 +242,7 @@ export function ChatPage() {
           </>
         ) : (
           <div className="flex items-center justify-center h-full animate-fade-in">
-            <p className="text-muted-foreground">Select a conversation to start chatting</p>
+            <p className="text-muted-foreground">Select a conversation to start chatting!!!</p>
           </div>
         )}
       </div>
