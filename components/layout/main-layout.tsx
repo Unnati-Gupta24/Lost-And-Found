@@ -5,8 +5,8 @@ import { Navigation } from "./navigation"
 import { HomePage } from "@/components/pages/home-page"
 import { DashboardPage } from "@/components/pages/dashboard-page"
 import { CreatePostPage } from "@/components/pages/create-post-page"
-import { ChatPage } from "@/components/pages/chat-page"
 import { ParticleBackground } from "@/components/ui/particle-background"
+import ChatPage from "../pages/chat-page"
 
 type Page = "home" | "dashboard" | "create" | "chat"
 
