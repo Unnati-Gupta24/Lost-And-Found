@@ -105,7 +105,7 @@ export function ChatPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full animate-fade-in">
-        <p className="text-muted-foreground">Loading conversations...</p>
+        <p className="text-muted-foreground">Loading conversations please wait...</p>
       </div>
     )
   }
