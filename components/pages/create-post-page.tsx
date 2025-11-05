@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Plus, X } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Plus, X, MapPin } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
 export function CreatePostPage() {
@@ -16,6 +16,34 @@ export function CreatePostPage() {
   const [image, setImage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  
+  // Location coordinates (default to Ghaziabad)
+  const [coordinates, setCoordinates] = useState({
+    lat: 28.6692,
+    lng: 77.4538
+  })
+  const [locationStatus, setLocationStatus] = useState<"loading" | "success" | "denied">("loading")
+
+  // Get user's location on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+          setLocationStatus("success")
+        },
+        (error) => {
+          console.log("Location access denied, using default location (Ghaziabad)")
+          setLocationStatus("denied")
+        }
+      )
+    } else {
+      setLocationStatus("denied")
+    }
+  }, [])
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -47,6 +75,7 @@ export function CreatePostPage() {
           date,
           image,
           authorId: user.id,
+          coordinates: coordinates, // Include location coordinates
         }),
       })
 
@@ -109,6 +138,37 @@ export function CreatePostPage() {
             </div>
           </div>
 
+          {/* Location Map */}
+          <div className="animate-slide-up" style={{ animationDelay: "0.15s" }}>
+            <label className="block text-sm font-semibold text-foreground mb-3">
+              <MapPin className="w-4 h-4 inline mr-2" />
+              Location Map
+            </label>
+            <div className="backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 rounded-2xl p-4 shadow-xl">
+              <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  style={{ border: 0 }}
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.01},${coordinates.lat - 0.01},${coordinates.lng + 0.01},${coordinates.lat + 0.01}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`}
+                  allowFullScreen
+                  title="Location Map"
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {locationStatus === "loading" && "📍 Getting your location..."}
+                  {locationStatus === "success" && "📍 Using your current location"}
+                  {locationStatus === "denied" && "📍 Using default location (Ghaziabad)"}
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Image Upload */}
           <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <label className="block text-sm font-semibold text-foreground mb-3">Add Image</label>
@@ -167,12 +227,12 @@ export function CreatePostPage() {
 
           {/* Location */}
           <div className="animate-slide-up" style={{ animationDelay: "0.5s" }}>
-            <label className="block text-sm font-semibold text-foreground mb-2">Location</label>
+            <label className="block text-sm font-semibold text-foreground mb-2">Location Description</label>
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g., Central Park, Downtown Area"
+              placeholder="e.g., Near Gate 3, Main Market"
               className="w-full backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 px-4 py-3 rounded-xl placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />

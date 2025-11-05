@@ -21,6 +21,10 @@ interface Post {
   likes: number
   likedBy: string[]
   comments: number
+  coordinates?: {
+    lat: number
+    lng: number
+  }
 }
 
 export function HomePage() {
@@ -80,6 +84,11 @@ export function HomePage() {
     }
   }
 
+  // Default coordinates for KIET Group of Institutions, Ghaziabad
+  const getPostCoordinates = (post: Post) => {
+    return post.coordinates || { lat: 28.7533, lng: 77.5001 }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -116,91 +125,126 @@ export function HomePage() {
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto p-4 space-y-4">
-          {filteredPosts.map((post, index) => (
-            <div
-              key={post.id}
-              className="backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:bg-white/15 dark:hover:bg-black/25 transition-all duration-300 animate-fade-in hover:scale-105 group"
-              style={{
-                animation: `slide-up 0.6s ease-out ${(index % 3) * 0.1}s backwards`,
-              }}
-            >
-              {/* Post Header */}
-              <div className="flex items-center gap-4 mb-4">
-                <img
-                  src={post.author.avatar || "/placeholder.svg"}
-                  alt={post.author.name}
-                  className="w-12 h-12 rounded-full animate-float shadow-lg"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground group-hover:text-blue-600 transition">
-                    {post.author.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{post.author.location}</p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur transition ${
-                    post.type === "lost"
-                      ? "bg-red-500/30 border border-red-500/50 text-red-700 dark:text-red-300"
-                      : "bg-emerald-500/30 border border-emerald-500/50 text-emerald-700 dark:text-emerald-300"
-                  }`}
-                >
-                  {post.type.toUpperCase()}
-                </span>
-              </div>
-
-              {/* Post Content */}
-              <h4 className="text-lg font-bold text-foreground mb-2 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text group-hover:text-transparent transition">
-                {post.title}
-              </h4>
-              <p className="text-muted-foreground mb-4">{post.description}</p>
-
-              {/* Post Image */}
-              {post.image && (
-                <img
-                  src={post.image || "/placeholder.svg"}
-                  alt={post.title}
-                  className="w-full h-72 object-cover rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105"
-                />
-              )}
-
-              {/* Post Meta */}
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4 px-2 py-2 rounded-lg bg-white/5 dark:bg-black/20">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  {post.location}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(post.date).toLocaleDateString()}
-                </div>
-              </div>
-
-              {/* Post Actions */}
-              <div className="flex gap-4 pt-4 border-t border-white/10 dark:border-white/5">
-                <button
-                  onClick={() => toggleLike(post.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 group/btn ${
-                    user && post.likedBy.includes(user.id)
-                      ? "text-red-600 dark:text-red-400 bg-red-500/20 backdrop-blur scale-105"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/10 dark:hover:bg-black/20"
-                  }`}
-                >
-                  <Heart
-                    className="w-5 h-5 transition-transform group-hover/btn:scale-110"
-                    fill={user && post.likedBy.includes(user.id) ? "currentColor" : "none"}
+          {filteredPosts.map((post, index) => {
+            const coords = getPostCoordinates(post)
+            
+            return (
+              <div
+                key={post.id}
+                className="backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:bg-white/15 dark:hover:bg-black/25 transition-all duration-300 animate-fade-in hover:scale-105 group"
+                style={{
+                  animation: `slide-up 0.6s ease-out ${(index % 3) * 0.1}s backwards`,
+                }}
+              >
+                {/* Post Header */}
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src={post.author.avatar || "/placeholder.svg"}
+                    alt={post.author.name}
+                    className="w-12 h-12 rounded-full animate-float shadow-lg"
                   />
-                  <span className="font-semibold">{post.likes}</span>
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground rounded-lg font-medium transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20">
-                  <MessageCircle className="w-5 h-5" />
-                  <span>{post.comments}</span>
-                </button>
-                <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground rounded-lg font-medium transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20">
-                  <Share2 className="w-5 h-5" />
-                </button>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground group-hover:text-blue-600 transition">
+                      {post.author.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{post.author.location}</p>
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur transition ${
+                      post.type === "lost"
+                        ? "bg-red-500/30 border border-red-500/50 text-red-700 dark:text-red-300"
+                        : "bg-emerald-500/30 border border-emerald-500/50 text-emerald-700 dark:text-emerald-300"
+                    }`}
+                  >
+                    {post.type.toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Post Content */}
+                <h4 className="text-lg font-bold text-foreground mb-2 group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text group-hover:text-transparent transition">
+                  {post.title}
+                </h4>
+                <p className="text-muted-foreground mb-4">{post.description}</p>
+
+                {/* Post Image */}
+                {post.image && (
+                  <img
+                    src={post.image || "/placeholder.svg"}
+                    alt={post.title}
+                    className="w-full h-72 object-cover rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105"
+                  />
+                )}
+
+                {/* Location Map - Always Visible */}
+                <div className="mb-4">
+                  <div className="backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 dark:border-white/10 rounded-xl p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span className="text-sm font-semibold text-foreground">
+                        {post.type === "lost" ? "Lost" : "Found"} at: {post.location}
+                      </span>
+                    </div>
+                    <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden mb-2">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        style={{ border: 0 }}
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.01},${coords.lat - 0.01},${coords.lng + 0.01},${coords.lat + 0.01}&layer=mapnik&marker=${coords.lat},${coords.lng}`}
+                        allowFullScreen
+                        title={`Location map for ${post.title}`}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between px-1">
+                      <p className="text-xs text-muted-foreground">
+                        📍 KIET Group of Institutions, Ghaziabad
+                      </p>
+                      <p className="text-xs text-muted-foreground/70">
+                        {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Post Meta */}
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4 px-2 py-2 rounded-lg bg-white/5 dark:bg-black/20">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {new Date(post.date).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Specific Location: {post.location}
+                  </div>
+                </div>
+
+                {/* Post Actions */}
+                <div className="flex gap-4 pt-4 border-t border-white/10 dark:border-white/5">
+                  <button
+                    onClick={() => toggleLike(post.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 group/btn ${
+                      user && post.likedBy.includes(user.id)
+                        ? "text-red-600 dark:text-red-400 bg-red-500/20 backdrop-blur scale-105"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/10 dark:hover:bg-black/20"
+                    }`}
+                  >
+                    <Heart
+                      className="w-5 h-5 transition-transform group-hover/btn:scale-110"
+                      fill={user && post.likedBy.includes(user.id) ? "currentColor" : "none"}
+                    />
+                    <span className="font-semibold">{post.likes}</span>
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground rounded-lg font-medium transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20">
+                    <MessageCircle className="w-5 h-5" />
+                    <span>{post.comments}</span>
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground rounded-lg font-medium transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20">
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
